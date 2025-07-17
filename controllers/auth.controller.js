@@ -16,7 +16,7 @@ router.get('/sign-up', (req, res) => {
 router.post('/sign-up', async (req, res) => {
     // get data from the form (req.body)
     // check if someone already exists
-    //req.body = form data
+    // req.body = form data
     console.log(req)
     const userInDatabase = await User.findOne({ username: req.body.username })
     if (userInDatabase) {
@@ -32,17 +32,15 @@ router.post('/sign-up', async (req, res) => {
     req.body.password = hashedPassword
     const newUser = await User.create(req.body)
     req.session.user = {
-    username: newUser.username,
-     _id: newUser._id,
-}
-
-req.session.save(() => {
-  res.redirect("/");
-});
-
-    res.send(`Thanks for signing up ${newUser.username}`)
+        username: newUser.username,
+        _id: newUser._id,
+    }
+    
+    req.session.save(() => {
+        console.log(req.session)
+        res.redirect('/')
+    })
 })
-
 
 // SIGN IN VIEW
 router.get('/sign-in', (req, res) => {
@@ -53,7 +51,8 @@ router.get('/sign-in', (req, res) => {
 router.post('/sign-in', async (req, res) => {
     // check if user already exists in database
     const userInDatabase = await User.findOne({ username: req.body.username })
-    // if userInDatabase is NOT FALSE (that means the user does exist) then send this message
+    console.log(userInDatabase)
+    // if userInDatabase is NOT NULL (that means the user does exist) then send this message
     if (!userInDatabase) {
         return res.send('Login failed. Please try again.')
     }
@@ -68,12 +67,13 @@ router.post('/sign-in', async (req, res) => {
     req.session.save(() => {
         res.redirect('/')
     })
-    
 })
 
-router.get("/sign-out", (req, res) => {
-  req.session.destroy();
-  res.redirect("/");
-});
+// SIGN OUT VIEW
+router.get('/sign-out', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/')
+    })
+})
 
 module.exports = router
